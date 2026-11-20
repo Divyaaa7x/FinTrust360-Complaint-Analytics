@@ -37,9 +37,13 @@ CREATE TABLE complaints (
 -- ---------------------------------------------------------------------
 -- STEP 2: Load the cleaned CSV
 -- (start the MySQL client with:  mysql --local-infile=1 -u root -p )
+-- MySQL 8 blocks loading local files by default, so the SET GLOBAL
+-- line below turns it on (needs an admin user such as root).
 -- Change the file path to where the CSV is saved on your computer.
 -- NULLIF turns empty text into NULL so empty dates load correctly.
 -- ---------------------------------------------------------------------
+SET GLOBAL local_infile = 1;
+
 LOAD DATA LOCAL INFILE 'C:/FinTrust360/data/FinTrust360_cleaned.csv'
 INTO TABLE complaints
 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'

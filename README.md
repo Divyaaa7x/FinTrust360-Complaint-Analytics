@@ -84,11 +84,15 @@ The SQL file creates the table, loads the cleaned CSV and runs 12 queries:
 
 > Open complaints are **excluded** from timely % and average response time because they do not have a response yet.
 
-**How to run:** start MySQL with `mysql --local-infile=1 -u root -p`, change the CSV path in the `LOAD DATA` line, then run the file.
+**How to run:**
+
+1. Start MySQL with `mysql --local-infile=1 -u root -p`.
+2. MySQL 8 blocks loading local files by default. The SQL file runs `SET GLOBAL local_infile = 1;` before loading the data to turn this on (this needs an admin user such as root).
+3. Change the CSV path in the `LOAD DATA` line to where the file is saved on your computer, then run the file.
 
 ## Step 3 – Power BI dashboard
 
-- **5 KPIs:** Total Complaints, Open Complaints, Closed Complaints, Timely Response Rate, Avg Response Days
+- **5 KPIs:** Total Complaints, Open Complaints, Closed Complaints, Timely Response Rate, Average Response Time (in days)
 - **Line chart:** monthly complaint trend
 - **Bar charts:** complaints by product, top 10 issues, timely response % by company
 - **Slicers:** date range, company, financial product
@@ -100,8 +104,10 @@ Total Complaints = COUNTROWS(FinTrust360_cleaned)
 Open Complaints = CALCULATE([Total Complaints], FinTrust360_cleaned[response_status] = "Open")
 Closed Complaints = CALCULATE([Total Complaints], FinTrust360_cleaned[response_status] = "Closed")
 Timely Response Rate = DIVIDE(CALCULATE([Total Complaints], FinTrust360_cleaned[response_status] = "Closed", FinTrust360_cleaned[timely_response] = "Yes"), [Closed Complaints])
-Avg Response Days = AVERAGEX(FILTER(FinTrust360_cleaned, FinTrust360_cleaned[response_status] = "Closed"), DATEDIFF(FinTrust360_cleaned[date_received], FinTrust360_cleaned[date_company_responded], DAY))
+Average Response Time = AVERAGEX(FILTER(FinTrust360_cleaned, FinTrust360_cleaned[response_status] = "Closed"), DATEDIFF(FinTrust360_cleaned[date_received], FinTrust360_cleaned[date_company_responded], DAY))
 ```
+
+**Opening the .pbix on another computer:** the data is saved inside the file, so the dashboard opens and works without the CSV. To use **Refresh**, point the report to the CSV on that computer: Home → Transform data → **Data source settings** → select the source → **Change Source** → browse to `data/FinTrust360_cleaned.csv` → OK → **Refresh**.
 
 ## Key results
 
